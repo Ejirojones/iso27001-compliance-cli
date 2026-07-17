@@ -1,0 +1,85 @@
+{
+  "_note": "Synthetic example data for two hosts: host-01 (mostly compliant) and host-02 (mostly non-compliant). Structure follows the observation/finding separation confirmed directly from the real OSCAL Assessment Results JSON schema. Field names 'method' (EXAMINE/INTERVIEW/TEST/UNKNOWN) and 'status'/'reason' values are taken directly from that schema's enums. Everything else (plain IDs instead of UUIDs, the specific setting fields per control) is this project's own simplified design, not part of OSCAL itself.",
+
+  "observations": [
+    { "observation_id": "obs-001", "hostname": "host-01", "control_id": "A.8.9", "description": "Checked whether ufw is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_installed", "value": true },
+    { "observation_id": "obs-002", "hostname": "host-01", "control_id": "A.8.9", "description": "Checked whether ufw service is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_service_active", "value": true },
+    { "observation_id": "obs-003", "hostname": "host-01", "control_id": "A.8.9", "description": "Checked ufw incoming default policy", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_incoming_default_deny", "value": true },
+    { "observation_id": "obs-004", "hostname": "host-01", "control_id": "A.8.9", "description": "Checked minimum password length setting", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "min_password_length", "value": 14 },
+    { "observation_id": "obs-005", "hostname": "host-01", "control_id": "A.8.9", "description": "Checked for any future-dated password changes", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "future_dated_password_changes", "value": false },
+
+    { "observation_id": "obs-006", "hostname": "host-01", "control_id": "A.8.13", "description": "Checked timestamp of last backup", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "last_backup_timestamp", "value": "2026-07-04T02:00:00Z" },
+    { "observation_id": "obs-007", "hostname": "host-01", "control_id": "A.8.13", "description": "Checked status of last backup job", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "backup_status", "value": "success" },
+    { "observation_id": "obs-008", "hostname": "host-01", "control_id": "A.8.13", "description": "Checked whether backup was tested/restorable", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "backup_tested", "value": true },
+
+    { "observation_id": "obs-009", "hostname": "host-01", "control_id": "A.8.15", "description": "Checked whether rsyslog is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "rsyslog_installed", "value": true },
+    { "observation_id": "obs-010", "hostname": "host-01", "control_id": "A.8.15", "description": "Checked whether rsyslog service is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "rsyslog_service_active", "value": true },
+
+    { "observation_id": "obs-011", "hostname": "host-01", "control_id": "A.8.16", "description": "Checked whether AIDE is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "aide_installed", "value": true },
+    { "observation_id": "obs-012", "hostname": "host-01", "control_id": "A.8.16", "description": "Checked whether dailyaidecheck timer is enabled", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "dailyaidecheck_timer_enabled", "value": true },
+    { "observation_id": "obs-013", "hostname": "host-01", "control_id": "A.8.16", "description": "Checked whether dailyaidecheck timer is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "dailyaidecheck_timer_active", "value": true },
+
+    { "observation_id": "obs-014", "hostname": "host-01", "control_id": "A.8.24", "description": "Read sshd Ciphers configuration line", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ciphers_config", "value": "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr" },
+    { "observation_id": "obs-015", "hostname": "host-01", "control_id": "A.8.24", "description": "Checked whether post-quantum key exchange is configured", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "pqc_key_exchange_configured", "value": true },
+
+    { "observation_id": "obs-016", "hostname": "host-02", "control_id": "A.8.9", "description": "Checked whether ufw is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_installed", "value": false },
+    { "observation_id": "obs-017", "hostname": "host-02", "control_id": "A.8.9", "description": "Checked whether ufw service is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_service_active", "value": false },
+    { "observation_id": "obs-018", "hostname": "host-02", "control_id": "A.8.9", "description": "Checked ufw incoming default policy", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_incoming_default_deny", "value": false },
+    { "observation_id": "obs-019", "hostname": "host-02", "control_id": "A.8.9", "description": "Checked minimum password length setting", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "min_password_length", "value": 8 },
+    { "observation_id": "obs-020", "hostname": "host-02", "control_id": "A.8.9", "description": "Checked for any future-dated password changes", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "future_dated_password_changes", "value": true },
+
+    { "observation_id": "obs-021", "hostname": "host-02", "control_id": "A.8.13", "description": "Checked timestamp of last backup", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "last_backup_timestamp", "value": "2026-06-20T02:00:00Z" },
+    { "observation_id": "obs-022", "hostname": "host-02", "control_id": "A.8.13", "description": "Checked status of last backup job", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "backup_status", "value": "failed" },
+    { "observation_id": "obs-023", "hostname": "host-02", "control_id": "A.8.13", "description": "Checked whether backup was tested/restorable", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "backup_tested", "value": false },
+
+    { "observation_id": "obs-024", "hostname": "host-02", "control_id": "A.8.15", "description": "Checked whether rsyslog is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "rsyslog_installed", "value": false },
+    { "observation_id": "obs-025", "hostname": "host-02", "control_id": "A.8.15", "description": "Checked whether rsyslog service is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "rsyslog_service_active", "value": false },
+
+    { "observation_id": "obs-026", "hostname": "host-02", "control_id": "A.8.16", "description": "Checked whether AIDE is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "aide_installed", "value": false },
+    { "observation_id": "obs-027", "hostname": "host-02", "control_id": "A.8.16", "description": "Checked whether dailyaidecheck timer is enabled", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "dailyaidecheck_timer_enabled", "value": false },
+    { "observation_id": "obs-028", "hostname": "host-02", "control_id": "A.8.16", "description": "Checked whether dailyaidecheck timer is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "dailyaidecheck_timer_active", "value": false },
+
+    { "observation_id": "obs-029", "hostname": "host-02", "control_id": "A.8.24", "description": "Read sshd Ciphers configuration line", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ciphers_config", "value": "3des-cbc,aes128-cbc,aes256-cbc" },
+    { "observation_id": "obs-030", "hostname": "host-02", "control_id": "A.8.24", "description": "Checked whether post-quantum key exchange is configured", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "pqc_key_exchange_configured", "value": false },
+
+    { "observation_id": "obs-031", "hostname": "host-03", "control_id": "A.8.9", "description": "Checked whether ufw is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_installed", "value": true },
+    { "observation_id": "obs-032", "hostname": "host-03", "control_id": "A.8.9", "description": "Checked whether ufw service is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_service_active", "value": true },
+    { "observation_id": "obs-033", "hostname": "host-03", "control_id": "A.8.9", "description": "Checked ufw incoming default policy", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ufw_incoming_default_deny", "value": false },
+    { "observation_id": "obs-034", "hostname": "host-03", "control_id": "A.8.9", "description": "Checked minimum password length setting", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "min_password_length", "value": 14 },
+    { "observation_id": "obs-035", "hostname": "host-03", "control_id": "A.8.9", "description": "Checked for any future-dated password changes", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "future_dated_password_changes", "value": true },
+
+    { "observation_id": "obs-036", "hostname": "host-03", "control_id": "A.8.13", "description": "Checked timestamp of last backup", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "last_backup_timestamp", "value": "2026-07-04T02:00:00Z" },
+    { "observation_id": "obs-037", "hostname": "host-03", "control_id": "A.8.13", "description": "Checked status of last backup job", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "backup_status", "value": "success" },
+    { "observation_id": "obs-038", "hostname": "host-03", "control_id": "A.8.13", "description": "Checked whether backup was tested/restorable", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "backup_tested", "value": false },
+
+    { "observation_id": "obs-039", "hostname": "host-03", "control_id": "A.8.15", "description": "Checked whether rsyslog is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "rsyslog_installed", "value": true },
+    { "observation_id": "obs-040", "hostname": "host-03", "control_id": "A.8.15", "description": "Checked whether rsyslog service is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "rsyslog_service_active", "value": true },
+
+    { "observation_id": "obs-041", "hostname": "host-03", "control_id": "A.8.16", "description": "Checked whether AIDE is installed", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "aide_installed", "value": true },
+    { "observation_id": "obs-042", "hostname": "host-03", "control_id": "A.8.16", "description": "Checked whether dailyaidecheck timer is enabled", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "dailyaidecheck_timer_enabled", "value": true },
+    { "observation_id": "obs-043", "hostname": "host-03", "control_id": "A.8.16", "description": "Checked whether dailyaidecheck timer is active", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "dailyaidecheck_timer_active", "value": false },
+
+    { "observation_id": "obs-044", "hostname": "host-03", "control_id": "A.8.24", "description": "Read sshd Ciphers configuration line", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "ciphers_config", "value": "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr" },
+    { "observation_id": "obs-045", "hostname": "host-03", "control_id": "A.8.24", "description": "Checked whether post-quantum key exchange is configured", "method": "TEST", "collected": "2026-07-04T09:00:00Z", "setting": "pqc_key_exchange_configured", "value": true }
+  ],
+
+  "findings": [
+    { "finding_id": "find-h01-A.8.9",  "hostname": "host-01", "control_id": "A.8.9",  "related_observation_ids": ["obs-001","obs-002","obs-003","obs-004","obs-005"], "status": "satisfied",     "reason": "pass" },
+    { "finding_id": "find-h01-A.8.13", "hostname": "host-01", "control_id": "A.8.13", "related_observation_ids": ["obs-006","obs-007","obs-008"],                     "status": "satisfied",     "reason": "pass" },
+    { "finding_id": "find-h01-A.8.15", "hostname": "host-01", "control_id": "A.8.15", "related_observation_ids": ["obs-009","obs-010"],                               "status": "satisfied",     "reason": "pass" },
+    { "finding_id": "find-h01-A.8.16", "hostname": "host-01", "control_id": "A.8.16", "related_observation_ids": ["obs-011","obs-012","obs-013"],                     "status": "satisfied",     "reason": "pass" },
+    { "finding_id": "find-h01-A.8.24", "hostname": "host-01", "control_id": "A.8.24", "related_observation_ids": ["obs-014","obs-015"],                               "status": "satisfied",     "reason": "pass" },
+
+    { "finding_id": "find-h02-A.8.9",  "hostname": "host-02", "control_id": "A.8.9",  "related_observation_ids": ["obs-016","obs-017","obs-018","obs-019","obs-020"], "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h02-A.8.13", "hostname": "host-02", "control_id": "A.8.13", "related_observation_ids": ["obs-021","obs-022","obs-023"],                     "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h02-A.8.15", "hostname": "host-02", "control_id": "A.8.15", "related_observation_ids": ["obs-024","obs-025"],                               "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h02-A.8.16", "hostname": "host-02", "control_id": "A.8.16", "related_observation_ids": ["obs-026","obs-027","obs-028"],                     "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h02-A.8.24", "hostname": "host-02", "control_id": "A.8.24", "related_observation_ids": ["obs-029","obs-030"],                               "status": "not-satisfied", "reason": "fail" },
+
+    { "finding_id": "find-h03-A.8.9",  "hostname": "host-03", "control_id": "A.8.9",  "related_observation_ids": ["obs-031","obs-032","obs-033","obs-034","obs-035"], "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h03-A.8.13", "hostname": "host-03", "control_id": "A.8.13", "related_observation_ids": ["obs-036","obs-037","obs-038"],                     "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h03-A.8.15", "hostname": "host-03", "control_id": "A.8.15", "related_observation_ids": ["obs-039","obs-040"],                               "status": "satisfied",     "reason": "pass" },
+    { "finding_id": "find-h03-A.8.16", "hostname": "host-03", "control_id": "A.8.16", "related_observation_ids": ["obs-041","obs-042","obs-043"],                     "status": "not-satisfied", "reason": "fail" },
+    { "finding_id": "find-h03-A.8.24", "hostname": "host-03", "control_id": "A.8.24", "related_observation_ids": ["obs-044","obs-045"],                               "status": "satisfied",     "reason": "pass" }
+  ]
+}
