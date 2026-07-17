@@ -1,0 +1,28 @@
+{
+  "hostname": "host-02",
+  "A.8.9": {
+    "ufw_installed": false,
+    "ufw_service_active": false,
+    "ufw_incoming_default_deny": false,
+    "min_password_length": 8,
+    "future_dated_password_changes": true
+  },
+  "A.8.13": {
+    "last_backup_timestamp": "2026-06-27T13:42:49.749764Z",
+    "backup_status": "failed",
+    "backup_tested": false
+  },
+  "A.8.15": {
+    "rsyslog_installed": false,
+    "rsyslog_service_active": false
+  },
+  "A.8.16": {
+    "aide_installed": false,
+    "dailyaidecheck_timer_enabled": false,
+    "dailyaidecheck_timer_active": false
+  },
+  "A.8.24": {
+    "ciphers_config": "3des-cbc,aes128-cbc,aes256-cbc",
+    "pqc_key_exchange_configured": false
+  }
+}
