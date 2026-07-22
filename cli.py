@@ -10,6 +10,10 @@ Usage:
     python3 cli.py --scheduled             # marks this run as cron-triggered,
                                             # rather than manual (see methodology
                                             # Section 7f)
+    python3 cli.py --data-dir data_demo --output output/demo_results.json
+                                            # point the CLI at a different data
+                                            # folder and output location, used
+                                            # for the isolated drift demo
 
     --control and --scheduled can be combined, e.g.:
     python3 cli.py --control A.8.9 --scheduled
@@ -24,6 +28,11 @@ Design rationale:
   (methodology Section 7f).
 - Uses argparse (Python's built-in library) rather than a third-party
   CLI framework, per the reasoning in methodology Section 7.
+- --data-dir and --output default to the project's real data/ and
+  output/results.json, so the main evaluation pipeline behaves exactly
+  as before; these flags exist solely to let a separate, isolated demo
+  pipeline reuse the same checking logic without touching the real
+  evaluation hosts.
 """
 
 import argparse
@@ -32,7 +41,6 @@ import os
 import sys
 from datetime import datetime, timezone
 
-# Make the checks/ folder importable
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "checks"))
 
 from a8_9_configuration import ConfigurationCheck
@@ -41,57 +49,42 @@ from a8_15_logging import LoggingCheck
 from a8_16_monitoring import MonitoringCheck
 from a8_24_cryptography import CryptographyCheck
 
-DATA_DIR = "data"
-OUTPUT_DIR = "output"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "results.json")
-
 CONTROL_MAP = {
-    "A.8.9": ConfigurationCheck,
-    "A.8.13": BackupCheck,
-    "A.8.15": LoggingCheck,
-    "A.8.16": MonitoringCheck,
-    "A.8.24": CryptographyCheck,
+    "A.8.9": ConfigurationCheck, "A.8.13": BackupCheck, "A.8.15": LoggingCheck,
+    "A.8.16": MonitoringCheck, "A.8.24": CryptographyCheck,
 }
 
 
-def discover_host_files():
-    """Finds every host-*.json file in the data/ folder."""
-    if not os.path.isdir(DATA_DIR):
+def discover_host_files(data_dir):
+    if not os.path.isdir(data_dir):
         return []
     return sorted(
-        os.path.join(DATA_DIR, f)
-        for f in os.listdir(DATA_DIR)
+        os.path.join(data_dir, f) for f in os.listdir(data_dir)
         if f.startswith("host-") and f.endswith(".json")
     )
 
 
-def run(control_id=None, scheduled=False):
-    """
-    Runs either all five checks, or one specific control (if control_id
-    is given), against every synthetic host found in data/.
-    """
+def run(control_id=None, scheduled=False, data_dir="data", output_file=None):
+    if output_file is None:
+        output_file = os.path.join("output", "results.json")
+
     if control_id:
         if control_id not in CONTROL_MAP:
-            valid = ", ".join(CONTROL_MAP.keys())
-            print(f"Error: unknown control '{control_id}'. Valid options: {valid}")
+            print(f"Error: unknown control '{control_id}'.")
             sys.exit(1)
         checks_to_run = {control_id: CONTROL_MAP[control_id]}
     else:
         checks_to_run = CONTROL_MAP
 
-    host_files = discover_host_files()
+    host_files = discover_host_files(data_dir)
     if not host_files:
-        print(f"No host files found in {DATA_DIR}/. "
-              f"Run generate_synthetic_hosts.py first.")
+        print(f"No host files found in {data_dir}/.")
         sys.exit(1)
 
-    all_observations = []
-    all_findings = []
-
+    all_observations, all_findings = [], []
     for host_file in host_files:
         with open(host_file) as f:
             host_data = json.load(f)
-
         for cid, CheckClass in checks_to_run.items():
             check = CheckClass()
             observations, finding = check.execute(host_data)
@@ -106,36 +99,27 @@ def run(control_id=None, scheduled=False):
         "observations": all_observations,
         "findings": all_findings,
     }
-
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    with open(OUTPUT_FILE, "w") as f:
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, "w") as f:
         json.dump(result, f, indent=2)
-
-    print(f"Run complete: {run_id} ({result['trigger_source']})")
-    print(f"Hosts checked: {len(host_files)}")
-    print(f"Controls checked: {len(checks_to_run)}")
-    print(f"Findings: {len(all_findings)}")
-    print(f"Results written to {OUTPUT_FILE}")
+    print(f"Run complete: {run_id} ({result['trigger_source']}) -> {output_file}")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="ISO 27001 continuous compliance CLI tool."
+    parser = argparse.ArgumentParser(description="ISO 27001 compliance CLI tool.")
+    parser.add_argument("--control", default=None)
+    parser.add_argument("--scheduled", action="store_true")
+    parser.add_argument(
+        "--data-dir", default="data",
+        help="Folder to read host files from (default: data)",
     )
     parser.add_argument(
-        "--control",
-        help="Run just one control instead of all five, e.g. A.8.9. "
-             "If omitted, all five controls are run.",
-        default=None,
-    )
-    parser.add_argument(
-        "--scheduled",
-        help="Mark this run as triggered by cron rather than manually.",
-        action="store_true",
+        "--output", default=None,
+        help="Where to write results (default: output/results.json)",
     )
     args = parser.parse_args()
-
-    run(control_id=args.control, scheduled=args.scheduled)
+    run(control_id=args.control, scheduled=args.scheduled,
+        data_dir=args.data_dir, output_file=args.output)
 
 
 if __name__ == "__main__":
