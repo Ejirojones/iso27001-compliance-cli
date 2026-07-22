@@ -102,7 +102,12 @@ def run(control_id=None, scheduled=False, data_dir="data", output_file=None):
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w") as f:
         json.dump(result, f, indent=2)
-    print(f"Run complete: {run_id} ({result['trigger_source']}) -> {output_file}")
+
+    print(f"Run complete: {run_id} ({result['trigger_source']})")
+    print(f"Hosts checked: {len(host_files)}")
+    print(f"Controls checked: {len(checks_to_run)}")
+    print(f"Findings: {len(all_findings)}")
+    print(f"Results written to {output_file}")
 
 
 def main():
