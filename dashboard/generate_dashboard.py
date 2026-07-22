@@ -35,6 +35,61 @@ CONTROL_TITLES = {
     "A.8.24": "A.8.24 &middot; Use of Cryptography",
 }
 
+# What each setting needs to be to pass, so the dashboard can show this
+# alongside the actual value, and highlight which specific setting
+# caused a failure, not just the overall pass/fail for the control.
+# True/False/string = must exactly match. A function = custom check.
+# None = no simple expected value to show (e.g. free-text fields).
+EXPECTED_VALUES = {
+    ("A.8.9", "ufw_installed"): True,
+    ("A.8.9", "ufw_service_active"): True,
+    ("A.8.9", "ufw_incoming_default_deny"): True,
+    ("A.8.9", "min_password_length"): (">= 14", lambda v: v >= 14),
+    ("A.8.9", "future_dated_password_changes"): False,
+    ("A.8.13", "backup_status"): "success",
+    ("A.8.13", "backup_tested"): True,
+    ("A.8.13", "last_backup_timestamp"): ("within 48 hours", None),
+    ("A.8.15", "rsyslog_installed"): True,
+    ("A.8.15", "rsyslog_service_active"): True,
+    ("A.8.16", "aide_installed"): True,
+    ("A.8.16", "dailyaidecheck_timer_enabled"): True,
+    ("A.8.16", "dailyaidecheck_timer_active"): True,
+    ("A.8.24", "weak_ciphers_detected"): False,
+    ("A.8.24", "pqc_key_exchange_configured"): True,
+    ("A.8.24", "ciphers_config"): ("no weak ciphers", None),
+}
+
+# A.8.24 is the only control where "not applicable" is a real, honest
+# outcome (methodology Section 6a) - shown as a note under that
+# section, even on runs where none of the current hosts trigger it.
+NOT_APPLICABLE_NOTE = (
+    "A.8.24 is the only control that can show \"N/A\" instead of "
+    "Pass/Fail, for a host that does not run SSH at all, since there "
+    "is nothing to check in that case. None of the current hosts "
+    "trigger this, but the check supports it."
+)
+
+
+def cell_status(control_id, setting, value):
+    """Compares an actual value against its expected value, returning
+    a (matches, expected_description) tuple. matches is True, False,
+    or None if there's no simple pass/fail comparison for this setting."""
+    key = (control_id, setting)
+    if key not in EXPECTED_VALUES:
+        return None, ""
+
+    expected = EXPECTED_VALUES[key]
+    if isinstance(expected, tuple):
+        description, check_fn = expected
+        if check_fn is None:
+            return None, description
+        try:
+            return check_fn(value), description
+        except TypeError:
+            return None, description
+    else:
+        return (value == expected), str(expected)
+
 
 def load_results(results_file):
     if not os.path.exists(results_file):
@@ -109,14 +164,21 @@ def build_control_detail(results, control_id, hostnames):
         (o["hostname"], o["setting"]): o["value"] for o in observations
     }
 
+    # Grab one timestamp to show when this control was last checked.
+    # All observations in a run share (almost) the same collection
+    # time, so the first one found is representative enough here.
+    checked_at = observations[0]["collected"] if observations else None
+
     rows = []
     for setting in settings:
-        row = [setting]
+        expected_desc = ""
+        row_cells = []
         for hostname in hostnames:
             value = values_by_host_setting.get((hostname, setting), "-")
-            row.append(str(value))
-        rows.append(row)
-    return rows
+            matches, expected_desc = cell_status(control_id, setting, value)
+            row_cells.append((str(value), matches))
+        rows.append((setting, expected_desc, row_cells))
+    return rows, checked_at
 
 
 def render_html(results):
@@ -139,14 +201,36 @@ def render_html(results):
 
     control_sections_html = ""
     for control_id in control_ids:
-        rows = build_control_detail(results, control_id, hostnames)
-        header_html = "<th>Setting</th>" + "".join(f"<th>{h}</th>" for h in hostnames)
+        rows, checked_at = build_control_detail(results, control_id, hostnames)
+        header_html = (
+            "<th>Setting</th><th>Required</th>"
+            + "".join(f"<th>{h}</th>" for h in hostnames)
+        )
         rows_html = ""
-        for row in rows:
-            cells_html = "".join(f"<td>{cell}</td>" for cell in row)
-            rows_html += f"<tr>{cells_html}</tr>\n"
+        for setting, expected_desc, row_cells in rows:
+            cells_html = ""
+            for value_str, matches in row_cells:
+                if matches is True:
+                    cells_html += f'<td class="cell-pass">{value_str}</td>'
+                elif matches is False:
+                    cells_html += f'<td class="cell-fail">{value_str}</td>'
+                else:
+                    cells_html += f"<td>{value_str}</td>"
+            rows_html += f"<tr><td>{setting}</td><td>{expected_desc}</td>{cells_html}</tr>\n"
+
+        checked_note = (
+            f'<p class="checked-note">Settings last checked: {checked_at}</p>'
+            if checked_at else ""
+        )
+        na_note = (
+            f'<p class="checked-note">{NOT_APPLICABLE_NOTE}</p>'
+            if control_id == "A.8.24" else ""
+        )
+
         control_sections_html += f"""
         <h2>{CONTROL_TITLES[control_id]}</h2>
+        {checked_note}
+        {na_note}
         <table>
           <tr>{header_html}</tr>
           {rows_html}
@@ -154,6 +238,7 @@ def render_html(results):
         """
 
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    trigger_class = "badge-scheduled" if results["trigger_source"] == "scheduled" else "badge-manual"
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -168,21 +253,28 @@ def render_html(results):
   .summary {{ display: flex; gap: 1rem; margin-bottom: 2rem; }}
   .summary div {{ border: 1px solid #ccc; border-radius: 6px; padding: 1rem; flex: 1; text-align: center; }}
   .summary .big {{ font-size: 1.6rem; font-weight: bold; }}
-  table {{ border-collapse: collapse; width: 100%; margin-bottom: 2rem; }}
+  table {{ border-collapse: collapse; width: 100%; margin-bottom: 0.5rem; }}
   th, td {{ border: 1px solid #ddd; padding: 6px 10px; text-align: center; font-size: 0.9rem; }}
   th {{ background: #f4f4f4; }}
   td:first-child, th:first-child {{ text-align: left; }}
+  td:nth-child(2), th:nth-child(2) {{ text-align: left; color: #666; font-style: italic; }}
   .pass {{ background: #e6f4ea; color: #1e7d34; font-weight: 600; }}
   .fail {{ background: #fbe9e7; color: #c62828; font-weight: 600; }}
   .mixed {{ background: #fff8e1; color: #a06800; font-weight: 600; }}
   .na {{ background: #eceff1; color: #607d8b; font-weight: 600; }}
+  .cell-fail {{ background: #fbe9e7; color: #c62828; font-weight: 600; }}
+  .cell-pass {{ color: #1e7d34; }}
+  .checked-note {{ color: #888; font-size: 0.8rem; margin: 0 0 8px; }}
+  .badge {{ display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }}
+  .badge-scheduled {{ background: #e3f2fd; color: #1565c0; }}
+  .badge-manual {{ background: #f3e5f5; color: #7b1fa2; }}
 </style>
 </head>
 <body>
 
 <h1>ISO 27001 Compliance Dashboard</h1>
 <p class="meta">
-  Run: {results['run_id']} ({results['trigger_source']}) &middot;
+  Run: {results['run_id']} <span class="badge {trigger_class}">{results['trigger_source']}</span> &middot;
   Generated: {generated_at} &middot;
   Auto-refreshes every {REFRESH_INTERVAL_SECONDS // 60} minutes
 </p>

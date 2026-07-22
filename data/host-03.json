@@ -2,15 +2,15 @@
   "hostname": "host-03",
   "A.8.9": {
     "ufw_installed": true,
-    "ufw_service_active": true,
-    "ufw_incoming_default_deny": false,
+    "ufw_service_active": false,
+    "ufw_incoming_default_deny": true,
     "min_password_length": 14,
     "future_dated_password_changes": true
   },
   "A.8.13": {
-    "last_backup_timestamp": "2026-07-22T11:32:33.404470Z",
-    "backup_status": "success",
-    "backup_tested": false
+    "last_backup_timestamp": "2026-07-22T21:44:09.077652Z",
+    "backup_status": "failed",
+    "backup_tested": true
   },
   "A.8.15": {
     "rsyslog_installed": true,

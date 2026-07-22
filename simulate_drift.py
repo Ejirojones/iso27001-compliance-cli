@@ -1,28 +1,21 @@
 """
 simulate_drift.py
 
-Simulates configuration drift on a single, dedicated demo host, purely
-to demonstrate the cron -> CLI -> dashboard pipeline reacting to a
-genuine change, without touching the three fixed hosts (host-01,
-host-02, host-03) used for the project's actual evaluation.
+Randomly changes one setting on host-03, to simulate a real machine
+drifting out of compliance over time. Only ever touches host-03,
+host-01 and host-02 stay untouched.
 
-Important: this script only ever modifies data_demo/host-03.json,
-never anything inside data/. The evaluation hosts remain fixed and
-reproducible at all times; this demo host is a separate, clearly
-labelled copy created purely for showing the automation working.
+Since host-03 already starts from a mixed state and only one thing
+changes at a time, it'll usually still show a realistic mixed
+pass/fail result, just not always exactly the same one.
 
-Each run has a small chance of flipping one random setting on the
-demo host, mimicking a real setting silently changing between checks
-(e.g. a firewall service being stopped, a backup starting to fail).
-
-Run this before cli.py in the demo cycle:
-    python3 simulate_drift.py
+Run this before cli.py.
 """
 
 import json
 import random
 
-DEMO_HOST_FILE = "data_demo/host-03.json"
+HOST_FILE = "data/host-03.json"
 DRIFT_PROBABILITY = 0.5  # 50% chance something changes on a given run
 
 # Settings that can be flipped, and what "drifted" looks like for each
@@ -38,12 +31,12 @@ DRIFTABLE_SETTINGS = [
 
 
 def load_demo_host():
-    with open(DEMO_HOST_FILE) as f:
+    with open(HOST_FILE) as f:
         return json.load(f)
 
 
 def save_demo_host(data):
-    with open(DEMO_HOST_FILE, "w") as f:
+    with open(HOST_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
 
@@ -73,9 +66,9 @@ def main():
     data, change = apply_random_drift(data)
     save_demo_host(data)
     if change:
-        print(f"Demo host updated: {DEMO_HOST_FILE}")
+        print(f"Demo host updated: {HOST_FILE}")
     else:
-        print(f"Demo host unchanged: {DEMO_HOST_FILE}")
+        print(f"Demo host unchanged: {HOST_FILE}")
 
 
 if __name__ == "__main__":

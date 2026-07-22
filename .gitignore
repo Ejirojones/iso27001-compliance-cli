@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 output/
 dashboard/*.html
+cron_log.txt
